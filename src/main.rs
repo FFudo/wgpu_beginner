@@ -20,7 +20,7 @@ fn main() {
                 }
 
                 _ => {}
-                // uncomment to print 
+                // uncomment to print events to console
                 //e => { 
                     //println!("{:?}", e);
                 //}
