@@ -4,10 +4,10 @@ fn main() {
     let mut glfw = glfw::init(fail_on_errors!()).unwrap();
 
     let (mut window, events) = glfw
-        .create_window(800, 600, "Its Graphics Time", glfw::WindowMode::Windowed)
+        .create_window(800, 600, "It's Graphics Time", glfw::WindowMode::Windowed)
         .unwrap();
 
-    window.set_all_polling(true);
+    window.set_key_polling(true); //set to all polling for all events
 
     window.make_current();
 
