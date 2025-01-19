@@ -13,7 +13,7 @@ struct State<'a> {
 
 impl<'a> State<'a> {
     async fn new(window: &'a mut Window) -> Self {
-        let size = window.get_size();
+        let size = window.get_framebuffer_size();
         let instance_descriptor = wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
             ..Default::default()
@@ -129,8 +129,8 @@ impl<'a> State<'a> {
     }
 
     fn update_surface(&mut self) {
-        let target = unsafe { wgpu::SurfaceTargetUnsafe::from_window(&window) }.unwrap();
-        let surface = unsafe { instance.create_surface_unsafe(target) }.unwrap();
+        let target = unsafe { wgpu::SurfaceTargetUnsafe::from_window(&self.window) }.unwrap();
+        self.surface = unsafe { self.instance.create_surface_unsafe(target) }.unwrap();
     }
 }
 
@@ -142,6 +142,7 @@ async fn run() {
         .unwrap();
 
     window.set_key_polling(true); //set to all polling for all events
+    window.set_size_polling(true);
 
     window.make_current();
 
@@ -154,16 +155,20 @@ async fn run() {
                 glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
                     state.window.set_should_close(true);
                 }
-
-                _ => {} // uncomment to print events to console
-                        //e => {
-                        //println!("{:?}", e);
-                        //}
+                glfw::WindowEvent::FramebufferSize(width,height ) => {
+                    state.update_surface();
+                    state.resize((width, height));
+                }
+                _ => {}
             }
         }
 
         match state.render() {
             Ok(_) => {},
+            Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
+                state.update_surface();
+                state.resize(state.size);
+            },
             Err(e) => eprint!("{:?}", e),
         }
         state.window.swap_buffers();
