@@ -145,12 +145,14 @@ async fn run() {
 
     window.make_current();
 
-    while !window.should_close() {
+    let mut state = State::new(&mut window).await;
+
+    while !state.window.should_close() {
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
             match event {
                 glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
-                    window.set_should_close(true);
+                    state.window.set_should_close(true);
                 }
 
                 _ => {} // uncomment to print events to console
@@ -159,10 +161,15 @@ async fn run() {
                         //}
             }
         }
-        window.swap_buffers();
+
+        match state.render() {
+            Ok(_) => {},
+            Err(e) => eprint!("{:?}", e),
+        }
+        state.window.swap_buffers();
     }
 }
 
 fn main() {
-    pollster::block_on(run());
+    pollster::block_on(run())
 }
