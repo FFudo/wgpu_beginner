@@ -15,7 +15,7 @@ impl<'a> State<'a> {
     async fn new(window: &'a mut Window) -> Self {
         let size = window.get_framebuffer_size();
         let instance_descriptor = wgpu::InstanceDescriptor {
-            backends: wgpu::Backends::all(),
+            backends: wgpu::Backends::DX12,
             ..Default::default()
         };
         let instance = wgpu::Instance::new(&instance_descriptor);
