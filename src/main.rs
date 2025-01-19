@@ -134,7 +134,7 @@ impl<'a> State<'a> {
     }
 }
 
-fn main() {
+async fn run() {
     let mut glfw = glfw::init(fail_on_errors!()).unwrap();
 
     let (mut window, events) = glfw
@@ -161,4 +161,8 @@ fn main() {
         }
         window.swap_buffers();
     }
+}
+
+fn main() {
+    pollster::block_on(run());
 }
