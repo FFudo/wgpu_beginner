@@ -127,7 +127,11 @@ impl<'a> State<'a> {
             self.surface.configure(&self.device, &self.config);
         }
     }
-    
+
+    fn update_surface(&mut self) {
+        let target = unsafe { wgpu::SurfaceTargetUnsafe::from_window(&window) }.unwrap();
+        let surface = unsafe { instance.create_surface_unsafe(target) }.unwrap();
+    }
 }
 
 fn main() {
