@@ -127,11 +127,6 @@ impl<'a> State<'a> {
             self.surface.configure(&self.device, &self.config);
         }
     }
-
-    fn update_surface(&mut self) {
-        let target = unsafe { wgpu::SurfaceTargetUnsafe::from_window(&self.window) }.unwrap();
-        self.surface = unsafe { self.instance.create_surface_unsafe(target) }.unwrap();
-    }
 }
 
 async fn run() {
@@ -141,7 +136,7 @@ async fn run() {
         .create_window(800, 600, "It's Graphics Time", glfw::WindowMode::Windowed)
         .unwrap();
 
-    window.set_key_polling(true); //set to all polling for all events
+    window.set_key_polling(true); //set to all polling if you want  all events
     window.set_size_polling(true);
 
     window.make_current();
@@ -156,7 +151,6 @@ async fn run() {
                     state.window.set_should_close(true);
                 }
                 glfw::WindowEvent::FramebufferSize(width,height ) => {
-                    state.update_surface();
                     state.resize((width, height));
                 }
                 _ => {}
@@ -166,7 +160,6 @@ async fn run() {
         match state.render() {
             Ok(_) => {},
             Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
-                state.update_surface();
                 state.resize(state.size);
             },
             Err(e) => eprint!("{:?}", e),
