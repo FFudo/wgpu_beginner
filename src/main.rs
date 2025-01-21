@@ -1,5 +1,6 @@
 use glfw::{fail_on_errors, Action, Context, Key, Window};
-use wgpu;
+mod renderer_backend;
+use renderer_backend::pipeline_builder::PipelineBuilder;
 
 struct State<'a> {
     instance: wgpu::Instance,
@@ -9,6 +10,7 @@ struct State<'a> {
     config: wgpu::SurfaceConfiguration,
     size: (i32, i32),
     window: &'a mut Window,
+    render_pipeline: wgpu::RenderPipeline,
 }
 
 impl<'a> State<'a> {
@@ -65,6 +67,11 @@ impl<'a> State<'a> {
 
         surface.configure(&device, &config);
 
+        let mut pipeline_builder = PipelineBuilder::new();
+        pipeline_builder.set_shader_module("shaders/shader.wgsl", "vs_main", "fs_main");
+        pipeline_builder.set_pixel_format(config.format);
+        let render_pipeline = pipeline_builder.build_pipeline(&device);
+
         Self {
             instance,
             window,
@@ -73,6 +80,7 @@ impl<'a> State<'a> {
             queue,
             config,
             size,
+            render_pipeline,
         }
     }
 
@@ -111,7 +119,11 @@ impl<'a> State<'a> {
             occlusion_query_set: None,
         };
 
-        command_encoder.begin_render_pass(&render_pass_descriptor);
+        {
+            let mut renderpass = command_encoder.begin_render_pass(&render_pass_descriptor);
+            renderpass.set_pipeline(&self.render_pipeline);
+            renderpass.draw(0..3, 0..1);
+        }
         self.queue.submit(std::iter::once(command_encoder.finish()));
 
         drawable.present();
@@ -150,7 +162,7 @@ async fn run() {
                 glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
                     state.window.set_should_close(true);
                 }
-                glfw::WindowEvent::FramebufferSize(width,height ) => {
+                glfw::WindowEvent::FramebufferSize(width, height) => {
                     state.resize((width, height));
                 }
                 _ => {}
@@ -158,10 +170,10 @@ async fn run() {
         }
 
         match state.render() {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
                 state.resize(state.size);
-            },
+            }
             Err(e) => eprint!("{:?}", e),
         }
         state.window.swap_buffers();

@@ -1,13 +1,13 @@
 struct VertexPayload {
     @builtin(position) position: vec4<f32>,
-    color: vec3<f32>,
+    @location(0) color: vec3<f32>,
 };
 
 @vertex
 fn vs_main(@builtin(vertex_index) i: u32) -> VertexPayload {
-    var position = array<vec2<f32>, 3>(
+    var positions = array<vec2<f32>, 3>(
         vec2<f32>(-0.75, -0.75),
-        vec2<f32>(0.75, 0.75),
+        vec2<f32>(0.75, -0.75),
         vec2<f32>(0.0, 0.75),
     );
 
@@ -24,6 +24,6 @@ fn vs_main(@builtin(vertex_index) i: u32) -> VertexPayload {
 }
 
 @fragment
-fn fs_main(in: VertexPayload) -> @loaction(0) vec4<f32> {
-    return vec4<32f>(in.color, 1.0);
+fn fs_main(in: VertexPayload) -> @location(0) vec4<f32> {
+    return vec4<f32>(in.color, 1.0);
 }
