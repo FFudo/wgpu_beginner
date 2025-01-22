@@ -1,6 +1,7 @@
 use glfw::{fail_on_errors, Action, Context, Key, Window};
 mod renderer_backend;
 use renderer_backend::pipeline_builder::PipelineBuilder;
+use renderer_backend::mesh_builder;
 
 struct State<'a> {
     instance: wgpu::Instance,
@@ -11,6 +12,7 @@ struct State<'a> {
     size: (i32, i32),
     window: &'a mut Window,
     render_pipeline: wgpu::RenderPipeline,
+    triangle_mesh: wgpu::Buffer,
 }
 
 impl<'a> State<'a> {
@@ -67,7 +69,10 @@ impl<'a> State<'a> {
 
         surface.configure(&device, &config);
 
+        let triangle_mesh = mesh_builder::make_triangle(&device);
+
         let mut pipeline_builder = PipelineBuilder::new();
+        pipeline_builder.add_buffer_layout(mesh_builder::Vertex::get_layout());
         pipeline_builder.set_shader_module("shaders/shader.wgsl", "vs_main", "fs_main");
         pipeline_builder.set_pixel_format(config.format);
         let render_pipeline = pipeline_builder.build_pipeline(&device);
@@ -81,6 +86,7 @@ impl<'a> State<'a> {
             config,
             size,
             render_pipeline,
+            triangle_mesh
         }
     }
 
@@ -122,6 +128,7 @@ impl<'a> State<'a> {
         {
             let mut renderpass = command_encoder.begin_render_pass(&render_pass_descriptor);
             renderpass.set_pipeline(&self.render_pipeline);
+            renderpass.set_vertex_buffer(0, self.triangle_mesh.slice(..));
             renderpass.draw(0..3, 0..1);
         }
         self.queue.submit(std::iter::once(command_encoder.finish()));
