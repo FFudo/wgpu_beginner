@@ -50,3 +50,42 @@ pub fn make_triangle(device: &wgpu::Device) -> wgpu::Buffer {
     let buffer = device.create_buffer_init(&buffer_descriptor);
     return buffer;
 }
+
+pub fn make_quad(device: &wgpu::Device) -> wgpu::Buffer {
+    let vertices: [Vertex; 6] = [
+        Vertex {
+            position: Vec3::new(-0.75, -0.75, 0.0),
+            color: Vec3::new(1.0, 0.0, 0.0),
+        },
+        Vertex {
+            position: Vec3::new(0.75, -0.75, 0.0),
+            color: Vec3::new(0.0, 1.0, 0.0),
+        },
+        Vertex {
+            position: Vec3::new(0.75, 0.75, 0.0),
+            color: Vec3::new(0.0, 0.0, 1.0),
+        },
+        Vertex {
+            position: Vec3::new(0.75, 0.75, 0.0),
+            color: Vec3::new(1.0, 0.0, 0.0),
+        },
+        Vertex {
+            position: Vec3::new(-0.75, 0.75, 0.0),
+            color: Vec3::new(0.0, 1.0, 0.0),
+        },
+        Vertex {
+            position: Vec3::new(0.75, -0.75, 0.0),
+            color: Vec3::new(0.0, 0.0, 1.0),
+        },
+    ];
+    let bytes: &[u8] = unsafe { any_as_u8_slice(&vertices) };
+
+    let buffer_descriptor = wgpu::util::BufferInitDescriptor {
+        label: Some("Quad Vertex Buffer"),
+        contents: bytes,
+        usage: wgpu::BufferUsages::VERTEX,
+    };
+
+    let buffer = device.create_buffer_init(&buffer_descriptor);
+    return buffer;
+}
