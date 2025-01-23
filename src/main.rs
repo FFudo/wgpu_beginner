@@ -133,7 +133,7 @@ impl<'a> State<'a> {
             renderpass.set_pipeline(&self.render_pipeline);
             // renderpass.set_vertex_buffer(0, self.triangle_mesh.slice(..));
             renderpass.set_vertex_buffer(0, self.quad_mesh.slice(..));
-            renderpass.draw(0..3, 0..1);
+            renderpass.draw(0..6, 0..1);
         }
         self.queue.submit(std::iter::once(command_encoder.finish()));
 
