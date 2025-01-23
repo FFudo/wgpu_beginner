@@ -13,7 +13,7 @@ struct State<'a> {
     window: &'a mut Window,
     render_pipeline: wgpu::RenderPipeline,
     triangle_mesh: wgpu::Buffer,
-    quad_mesh: wgpu::Buffer,
+    quad_mesh: mesh_builder::Mesh,
 }
 
 impl<'a> State<'a> {
@@ -132,8 +132,10 @@ impl<'a> State<'a> {
             let mut renderpass = command_encoder.begin_render_pass(&render_pass_descriptor);
             renderpass.set_pipeline(&self.render_pipeline);
             // renderpass.set_vertex_buffer(0, self.triangle_mesh.slice(..));
-            renderpass.set_vertex_buffer(0, self.quad_mesh.slice(..));
-            renderpass.draw(0..6, 0..1);
+            // renderpass.draw(0..3, 0..1);
+            renderpass.set_vertex_buffer(0, self.quad_mesh.vertex_buffer.slice(..));
+            renderpass.set_index_buffer(self.quad_mesh.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+            renderpass.draw_indexed(0..6, 0, 0..1);
         }
         self.queue.submit(std::iter::once(command_encoder.finish()));
 
